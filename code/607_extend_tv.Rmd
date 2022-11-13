@@ -1,0 +1,94 @@
+---
+title: "TidyVerse EXTEND assignment"
+author: "Khyati Naik"
+date: "`r Sys.Date()`"
+---
+
+In this assignment, you’ll practice collaborating around a code project with GitHub.  You could consider our collective work as building out a book of examples on how to use TidyVerse functions.
+
+GitHub repository:  https://github.com/acatlin/FALL2022TIDYVERSE
+
+Your task here is to Extend an Existing Example.  Using one of your classmate’s examples (as created above), extend his or her example with additional annotated code. (15 points)
+
+You should clone the provided repository.  Once you have code to submit, you should make a pull request on the shared repository.  You should also update the README.md file with your example.
+
+After you’ve extended your classmate's vignette, please submit your GitHub handle name in the submission link provided below.  This will let your instructor know that your work is ready to be peer-graded.
+
+You should complete your submission on the schedule stated in the course syllabus.
+
+# Solution
+
+__I will be extending Ariana Nolans tidyverse example with additional code.__
+
+### Load packages
+```{r}
+library(tidyverse)
+```
+
+### get data
+```{r}
+myData <- read.csv('https://raw.githubusercontent.com/arinolan/Tidyverse-Create/main/nhl_elo.csv')
+```
+
+### dply package examples: using glimpse, rename, and select examples. Let's look at the mean home and away team scorres by seasons from 2018-now
+```{r}
+glimpse(myData)
+```
+
+```{r}
+myData <- myData %>% rename(Overtime = 'ot',
+                            Game_Type = 'status')
+```
+
+```{r}
+myData %>% select(home_team, home_team_score, away_team, away_team_score, season, playoff) %>%
+  filter(season >= 2018) %>%
+  group_by(season) %>%
+  summarise(mean_home_score = mean(home_team_score),
+            mean_away_score = mean(away_team_score))
+```
+
+### plot chart to see home score for the Anaheim Ducks in the 2022-23 season (just started in oct)
+```{r}
+season_Ducks <- myData %>%
+  filter(season >= 2023 & home_team == 'Anaheim Ducks' & date <= '2022-10-30' ) %>%
+  ggplot(aes(date, home_team_score, group = 1)) + 
+  geom_point(na.rm=TRUE, color = 'black') + 
+  geom_line(na.rm=TRUE, color = 'red') + 
+  labs(title = 'Ducks Home Score 2022-23 Season', x = 'Date', y = 'Home Score') + theme_classic() +
+  guides(x = guide_axis(n.dodge = 4))
+season_Ducks
+```
+
+# Extend Code starts by Khyati Naik
+
+In the following few examples, we shall be looking at some of the important and frequently used verb functions (arrange and mutate) from dplyr package.
+
+
+```{r}
+myData %>% select(home_team, home_team_score, away_team, away_team_score, season, playoff) %>%
+  filter(season >= 2018) %>%
+  group_by(season) %>%
+  summarise(mean_home_score = mean(home_team_score),
+            mean_away_score = mean(away_team_score)) %>%
+  mutate(flag_away_score_high = ifelse(mean_away_score>mean_home_score,1,0)) %>%
+  arrange(desc(flag_away_score_high))
+```
+
+                         
+### tidyr package in tidyverse
+
+```{r}
+# Convert data from long to wide
+myData %>% filter(season >= 2018 & season <= 2022) %>% select(playoff,season,away_team_score) %>% 
+                         group_by(playoff,season) %>% 
+                         summarize(mean_away_score = mean(away_team_score)) %>% 
+                         arrange(desc(mean_away_score)) %>% spread(season, mean_away_score)
+
+```
+                         
+
+
+## Conclusion
+
+I extended Ariana Nolans tidyverse example with additional code. I extended the example by further looking at multiple other functions from dplyr package such as arrange and mutate. Furthermore, I also used tidyr package in tidyverse to convert data from long to wide.
